@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Paper Trading</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        #tabs {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background-color: #333;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        button {
+            padding: 10px;
+            background-color: #444;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #555;
+        }
+        #trending-coins, #major-coins {
+            list-style-type: none;
+            padding: 0;
+        }
+        #trending-coins li, #major-coins li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="tabs">
+        <button onclick="showTab('assets')">Assets</button>
+        <button onclick="showTab('trending')">Trending</button>
+        <button onclick="showTab('settings')">Settings</button>
+    </div>
+
+    <div id="assets" class="tab-content active">
+        <h2>Your Assets</h2>
+        <p>Here are the crypto assets you hold.</p>
+        <!-- Placeholder for dynamic assets -->
+    </div>
+
+    <div id="trending" class="tab-content">
+        <h2>Trending Meme Coins</h2>
+        <ul id="trending-coins"></ul>
+    </div>
+
+    <div id="settings" class="tab-content">
+        <h2>Major Coins</h2>
+        <ul id="major-coins"></ul>
+    </div>
+
+    <div id="settings" class="tab-content">
+        <h2>Settings</h2>
+        <button onclick="toggleTheme()">Toggle Light/Dark Mode</button>
+        <button onclick="addFakeFunds()">Add Fake Funds</button>
+    </div>
+
+    <script>
+        // Switch between tabs
+        function showTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // Fetch trending meme coins from Dexscreener API
+        function fetchTrendingMemecoins() {
+            fetch('https://api.dexscreener.com/latest/dex/tokens/top/v1')
+                .then(response => response.json())
+                .then(data => {
+                    const trendingCoins = data.pairs.slice(0, 5);
+                    const trendingList = document.getElementById('trending-coins');
+                    trendingList.innerHTML = '';
+                    trendingCoins.forEach(coin => {
+                        const li = document.createElement('li');
+                        li.textContent = `${coin.baseToken.name}: $${coin.priceUsd}`;
+                        trendingList.appendChild(li);
+                    });
+                })
+                .catch(error => console.error('Error fetching trending coins:', error));
+        }
+
+        // Fetch major coins from DefiLlama API
+        function fetchMajorCoins() {
+            fetch('https://api.llama.fi/prices/current/btc,sol,eth')
+                .then(response => response.json())
+                .then(data => {
+                    const majorCoins = [
+                        { name: 'Bitcoin (BTC)', price: data.coins.bitcoin.price },
+                        { name: 'Solana (SOL)', price: data.coins.solana.price },
+                        { name: 'Ethereum (ETH)', price: data.coins.ethereum.price }
+                    ];
+                    const majorList = document.getElementById('major-coins');
+                    majorList.innerHTML = '';
+                    majorCoins.forEach(coin => {
+                        const li = document.createElement('li');
+                        li.textContent = `${coin.name}: $${coin.price}`;
+                        majorList.appendChild(li);
+                    });
+                })
+                .catch(error => console.error('Error fetching major coins:', error));
+        }
+
+        // Toggle between dark and light modes
+        function toggleTheme() {
+            const body = document.body;
+            if (body.style.backgroundColor === 'white') {
+                body.style.backgroundColor = '#1a1a1a';
+                body.style.color = 'white';
+            } else {
+                body.style.backgroundColor = 'white';
+                body.style.color = 'black';
+            }
+        }
+
+        // Add fake funds to account
+        function addFakeFunds() {
+            alert("Added fake funds to your account!");
+        }
+
+        // Fetch data when the page loads
+        window.onload = function() {
+            fetchTrendingMemecoins();
+            fetchMajorCoins();
+        }
+    </script>
+
+</body>
+</html>
